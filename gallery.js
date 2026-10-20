@@ -1,149 +1,176 @@
-let slideIndex = 1;
-let slideTimer;
+// =========================================
+// GALLERY LIGHTBOX
+// =========================================
 
-// Start slideshow
-showSlides(slideIndex);
-startAutoSlide();
+const galleryImages = document.querySelectorAll(".gallery-card img");
 
+const lightbox = document.getElementById("lightbox");
 
-// =================================
-// NEXT / PREVIOUS SLIDES
-// =================================
+const lightboxImage = document.getElementById("lightboxImage");
 
-function plusSlides(n) {
-    showSlides(slideIndex += n);
+const closeButton = document.getElementById("lightboxClose");
 
-    // Restart automatic slideshow
-    restartAutoSlide();
-}
+const previousButton = document.getElementById("lightboxPrev");
+
+const nextButton = document.getElementById("lightboxNext");
 
 
-// =================================
-// DOT NAVIGATION
-// =================================
-
-function currentSlide(n) {
-    showSlides(slideIndex = n);
-
-    // Restart automatic slideshow
-    restartAutoSlide();
-}
+let currentImage = 0;
 
 
-// =================================
-// SHOW SLIDES
-// =================================
+// =========================================
+// OPEN IMAGE
+// =========================================
 
-function showSlides(n) {
-
-    let slides = document.getElementsByClassName("slide");
-    let dots = document.getElementsByClassName("dot");
-
-    // Go back to first slide
-    if (n > slides.length) {
-        slideIndex = 1;
-    }
-
-    // Go to last slide
-    if (n < 1) {
-        slideIndex = slides.length;
-    }
-
-
-    // Hide all slides
-    for (let i = 0; i < slides.length; i++) {
-        slides[i].style.display = "none";
-    }
-
-
-    // Remove active dot
-    for (let i = 0; i < dots.length; i++) {
-        dots[i].classList.remove("active");
-    }
-
-
-    // Show current slide
-    slides[slideIndex - 1].style.display = "block";
-
-
-    // Activate current dot
-    if (dots[slideIndex - 1]) {
-        dots[slideIndex - 1].classList.add("active");
-    }
-}
-
-
-// =================================
-// AUTOMATIC SLIDESHOW
-// =================================
-
-function startAutoSlide() {
-
-    slideTimer = setInterval(function () {
-
-        slideIndex++;
-
-        showSlides(slideIndex);
-
-    }, 5000); // 5 seconds
-
-}
-
-
-// =================================
-// RESTART AUTOMATIC SLIDESHOW
-// =================================
-
-function restartAutoSlide() {
-
-    clearInterval(slideTimer);
-
-    startAutoSlide();
-
-}
-
-
-// =================================
-// CLICK IMAGE TO ZOOM
-// =================================
-
-const slideshowImages = document.querySelectorAll(
-    ".slideshow .slide img"
-);
-
-slideshowImages.forEach(function(image) {
+galleryImages.forEach(function(image, index) {
 
     image.addEventListener("click", function() {
 
-        // Remove zoom from other images
-        slideshowImages.forEach(function(otherImage) {
+        currentImage = index;
 
-            if (otherImage !== image) {
-                otherImage.classList.remove("zoomed");
-            }
-
-        });
-
-        // Zoom / unzoom clicked image
-        image.classList.toggle("zoomed");
+        openLightbox();
 
     });
 
 });
 
 
+// =========================================
+// OPEN LIGHTBOX FUNCTION
+// =========================================
+
+function openLightbox() {
+
+    lightboxImage.src = galleryImages[currentImage].src;
+
+    lightboxImage.alt = galleryImages[currentImage].alt;
+
+    lightbox.classList.add("active");
+
+    // Stop page scrolling
+    document.body.style.overflow = "hidden";
+
+}
 
 
-const galleryImages = document.querySelectorAll(
-    ".gallery-card img"
-);
+// =========================================
+// CLOSE LIGHTBOX
+// =========================================
 
-galleryImages.forEach(function(image) {
+function closeLightbox() {
 
-    image.addEventListener("click", function() {
+    lightbox.classList.remove("active");
 
-        image.classList.toggle("zoomed");
+    // Allow page scrolling again
+    document.body.style.overflow = "";
 
-    });
+}
+
+
+// =========================================
+// CLOSE BUTTON
+// =========================================
+
+closeButton.addEventListener("click", function() {
+
+    closeLightbox();
+
+});
+
+
+// =========================================
+// NEXT IMAGE
+// =========================================
+
+nextButton.addEventListener("click", function() {
+
+    currentImage++;
+
+    if (currentImage >= galleryImages.length) {
+        currentImage = 0;
+    }
+
+    openLightbox();
+
+});
+
+
+// =========================================
+// PREVIOUS IMAGE
+// =========================================
+
+previousButton.addEventListener("click", function() {
+
+    currentImage--;
+
+    if (currentImage < 0) {
+        currentImage = galleryImages.length - 1;
+    }
+
+    openLightbox();
+
+});
+
+
+// =========================================
+// CLICK OUTSIDE IMAGE TO CLOSE
+// =========================================
+
+lightbox.addEventListener("click", function(event) {
+
+    if (event.target === lightbox) {
+
+        closeLightbox();
+
+    }
+
+});
+
+
+// =========================================
+// KEYBOARD CONTROLS
+// =========================================
+
+document.addEventListener("keydown", function(event) {
+
+    if (!lightbox.classList.contains("active")) {
+        return;
+    }
+
+
+    // ESC = CLOSE
+    if (event.key === "Escape") {
+
+        closeLightbox();
+
+    }
+
+
+    // RIGHT ARROW = NEXT
+    if (event.key === "ArrowRight") {
+
+        currentImage++;
+
+        if (currentImage >= galleryImages.length) {
+            currentImage = 0;
+        }
+
+        openLightbox();
+
+    }
+
+
+    // LEFT ARROW = PREVIOUS
+    if (event.key === "ArrowLeft") {
+
+        currentImage--;
+
+        if (currentImage < 0) {
+            currentImage = galleryImages.length - 1;
+        }
+
+        openLightbox();
+
+    }
 
 });
